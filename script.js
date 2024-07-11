@@ -307,13 +307,13 @@ document.getElementById('close-popup').addEventListener('click', closePopup);
 });
 
 
-        document.addEventListener('DOMContentLoaded', async () => {
-            try {
-                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                console.log('Microphone access granted:', stream);
-                // Use the stream here (e.g., for audio recording)
-            } catch (error) {
-                console.error('Microphone access denied:', error);
-            }
-        });
+
+// script.js
+document.addEventListener("DOMContentLoaded", function() {
+  // Set a timeout to hide the loading screen after 5 seconds
+  setTimeout(function() {
+    document.body.classList.add('loaded');
+  }, 2300); // 5 seconds delay
+});
+
 

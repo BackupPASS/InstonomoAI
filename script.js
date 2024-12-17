@@ -1,9 +1,12 @@
 const chatOutput = document.getElementById('chat-output');
 const textInput = document.getElementById("text-input");
-const chatButtonBall = document.getElementById('chat-button-ball');
+const micButton = document.getElementById('mic-button');
+const muteButton = document.getElementById('mute-button');
+const enterButton = document.getElementById('enter-button');
 const welcomeScreen = document.getElementById('welcome-screen');
 const mainContent = document.getElementById('main-content');
 const closeWelcomeButton = document.getElementById('close-welcome');
+
 
 let isRecording = false;
 let recognition;
@@ -31,44 +34,44 @@ function addChatBubble(message, isAi = true) {
 
 //Check and reply message on screen
 async function getAIResponse(input) {
-   const apiKey = "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"; // Replace with your actual API key!!!
+    const apiKey = "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"; // Replace with your actual API key!!!
     try {
-       const response = await fetch('https://api.openai.com/v1/chat/completions', {
+        const response = await fetch('https://api.openai.com/v1/chat/completions', {
             method: 'POST',
             headers: {
-               'Content-Type': 'application/json',
-               'Authorization': `Bearer ${apiKey}`,
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${apiKey}`,
             },
-             body: JSON.stringify({
-                   model: 'gpt-3.5-turbo',
-                   messages: [{ role: 'user', content: input }],
-                  max_tokens: 150
-              })
+            body: JSON.stringify({
+                model: 'gpt-3.5-turbo',
+                messages: [{ role: 'user', content: input }],
+                max_tokens: 150
+            })
         });
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
-         const data = await response.json();
-          const aiResponse =  data.choices[0].message.content
-         const chatBubble =  addChatBubble(aiResponse, true);
-          if (!isMuted){
-             const utterThis = new SpeechSynthesisUtterance(aiResponse);
-           const availableVoiceOptions = speechSynthesis.getVoices()
-             const voiceOptionsForSynth =  availableVoiceOptions.find(voice=> voice.lang.startsWith("en-US"))
+        const data = await response.json();
+        const aiResponse = data.choices[0].message.content
+        const chatBubble = addChatBubble(aiResponse, true);
+        if (!isMuted) {
+            const utterThis = new SpeechSynthesisUtterance(aiResponse);
+            const availableVoiceOptions = speechSynthesis.getVoices()
+            const voiceOptionsForSynth = availableVoiceOptions.find(voice => voice.lang.startsWith("en-US"))
 
-         if (voiceOptionsForSynth){
-           utterThis.voice = voiceOptionsForSynth;
-             }
-           if(speechSynthesis){
-              speechSynthesis.speak(utterThis);
-              }else{
-               chatBubble.innerHTML += " <br /> (Audio not available on your browser)"
-                }
-             }
+            if (voiceOptionsForSynth) {
+                utterThis.voice = voiceOptionsForSynth;
+            }
+            if (speechSynthesis) {
+                speechSynthesis.speak(utterThis);
+            } else {
+                chatBubble.innerHTML += " <br /> (Audio not available on your browser)"
+            }
+        }
     }
     catch (error) {
-      console.error("Error getting AI response:", error)
-         addChatBubble("Failed to get response from AI.", true);
+        console.error("Error getting AI response:", error)
+        addChatBubble("Failed to get response from AI.", true);
     }
 }
 
@@ -96,7 +99,8 @@ async function voiceRecordHandler() {
             recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
             recognition.onstart = function () {
                 addChatBubble('Listening..', false);
-                chatButtonBall.classList.add('listening');
+                micButton.classList.add('listening');
+                micButton.innerHTML = '<i class="fas fa-microphone"></i>' // microphone on while listening
             };
             recognition.onresult = function (event) {
                 let userMessage = event.results[0][0].transcript;
@@ -104,7 +108,8 @@ async function voiceRecordHandler() {
                 getAIResponse(userMessage);
             };
             recognition.onspeechend = function () {
-                chatButtonBall.classList.remove('listening'); // remove state if active to have no errors
+                micButton.classList.remove('listening');
+                micButton.innerHTML = '<i class="fas fa-microphone-slash"></i>' // microphone off while not listening
                 recognition.stop();
                 isRecording = false;
             };
@@ -115,12 +120,12 @@ async function voiceRecordHandler() {
             console.error("Error initiating voice recognition:", e)
         }
     } else if (recognition) {
-        chatButtonBall.classList.remove('listening'); // remove class state and properly set state variable
+        micButton.classList.remove('listening');
+        micButton.innerHTML = '<i class="fas fa-microphone-slash"></i>' // microphone off while not listening
         recognition.stop();
         recognition = null;
     }
 }
-
 
 textInput.addEventListener("keypress", (event) => {
     if (event.key === "Enter") {
@@ -131,15 +136,18 @@ textInput.addEventListener("keypress", (event) => {
     }
 });
 
-chatButtonBall.addEventListener("click", () => {
+enterButton.addEventListener('click', () => {
+      let userMessage = textInput.value.trim();
+        addChatBubble(userMessage, false);
+        getAIResponse(userMessage);
+        textInput.value = "";
+})
+
+
+micButton.addEventListener("click", () => {
     voiceRecordHandler();
 });
 
-chatButtonBall.addEventListener('dblclick', () => {
-    textInput.focus();
-});
-
-const muteButton = document.getElementById("mute-button");
 let isMuted = sessionStorage.getItem('isMuted') === 'true' || false;
 
 //Initial render, setting if already muted from previous session
@@ -208,17 +216,17 @@ function setCookie(name, value, days) {
         date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
         expires = "; expires=" + date.toUTCString();
     }
-    document.cookie = name + "=" + (value || "")  + expires + "; path=/";
+    document.cookie = name + "=" + (value || "") + expires + "; path=/";
 }
 
 // Function to get a cookie
 function getCookie(name) {
     const nameEQ = name + "=";
     const ca = document.cookie.split(';');
-    for(let i=0;i < ca.length;i++) {
+    for (let i = 0; i < ca.length; i++) {
         let c = ca[i];
-        while (c.charAt(0) === ' ') c = c.substring(1,c.length);
-        if (c.indexOf(nameEQ) === 0) return c.substring(nameEQ.length,c.length);
+        while (c.charAt(0) === ' ') c = c.substring(1, c.length);
+        if (c.indexOf(nameEQ) === 0) return c.substring(nameEQ.length, c.length);
     }
     return null;
 }
@@ -240,6 +248,35 @@ document.addEventListener('DOMContentLoaded', () => {
         setCookie('firstTime', 'false', 365); // Set cookie for 1 year
 
     });
-        checkSpeed();
+    checkSpeed();
+
+    // Ban Functionality Checks if they are banned if not it will track them
+    const banExpiry = getCookie('banExpiry');
+
+    if (banExpiry && new Date().getTime() < parseInt(banExpiry)) {
+        // User is banned
+        window.location.href = 'https://backuppass.github.io/https://backuppass.github.io/Pass-Banning-System-Token.InstonomoAI.2025//'; // Redirect to banned page
+        return;
+    } else if (banExpiry) {
+        setCookie('banExpiry', "", -1) // removes cookie if ban time has ended
+    }
+    
+    //track user behavior
+   let accessTimes = JSON.parse(localStorage.getItem('accessTimes') || '[]');
+   const currentTime = new Date().getTime();
+
+     //Filter out access times older then 1 minute
+      accessTimes = accessTimes.filter(time => currentTime - time < 60000);
+
+  if (accessTimes.length >= 5){
+       const banDuration = 60 * 1000; // 1 minute in milliseconds
+            const banEndTime = new Date().getTime() + banDuration;
+             setCookie('banExpiry', banEndTime, 1/1440); // Ban for 1 minute and sets cookie expiry for the same duration
+      console.log("Ban triggered!");  // Added for debuggin
+    }
+
+    accessTimes.push(currentTime);
+   localStorage.setItem('accessTimes', JSON.stringify(accessTimes));
+   console.log("Access recorded at:", currentTime, "Current Access Times:", accessTimes); //Added for debugging
 
 });

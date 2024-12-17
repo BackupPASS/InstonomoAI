@@ -1,319 +1,245 @@
-let currentIndex = 0;
-const images = [
+const chatOutput = document.getElementById('chat-output');
+const textInput = document.getElementById("text-input");
+const chatButtonBall = document.getElementById('chat-button-ball');
+const welcomeScreen = document.getElementById('welcome-screen');
+const mainContent = document.getElementById('main-content');
+const closeWelcomeButton = document.getElementById('close-welcome');
 
-    'image2.jpg',
+let isRecording = false;
+let recognition;
+const preDefinedResponses = {
+    "hi": "Hello there!",
+    "hello": "Hey there!",
+    "how are you": "I am fine, thank you. How can I help?",
+    "who are you": "I am just a very basic simulation, not a real AI.",
+    "what is this": "This is just a demo to show interactivity with CSS, JS",
+    "what can you do": "Not much, but I can animate some CSS!",
+    "bye": "Goodbye, See you soon!",
+    "what is 1 + 1": "That would be 2",
+    "default": "As a beta model, I'm currently limited in my knowledge and therefore cannot fully address that query at this time."
+};
 
-];
-const slideshow = document.getElementById('background-slideshow');
-
-function changeBackground(index) {
-    slideshow.style.backgroundImage = `url(${images[index]})`;
-    currentIndex = index;
+function addChatBubble(message, isAi = true) {
+    const chatBubble = document.createElement("div");
+    chatBubble.classList.add("chat-bubble");
+    chatBubble.classList.add(isAi ? 'ai-bubble' : 'user-bubble'); // Add class based on sender
+    chatBubble.innerHTML = message;
+    chatOutput.append(chatBubble);
+    chatOutput.scrollTop = chatOutput.scrollHeight;
+    return chatBubble;
 }
 
-function nextBackground() {
-    currentIndex = (currentIndex + 1) % images.length;
-    changeBackground(currentIndex);
-}
+//Check and reply message on screen
+async function getAIResponse(input) {
+   const apiKey = "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"; // Replace with your actual API key!!!
+    try {
+       const response = await fetch('https://api.openai.com/v1/chat/completions', {
+            method: 'POST',
+            headers: {
+               'Content-Type': 'application/json',
+               'Authorization': `Bearer ${apiKey}`,
+            },
+             body: JSON.stringify({
+                   model: 'gpt-3.5-turbo',
+                   messages: [{ role: 'user', content: input }],
+                  max_tokens: 150
+              })
+        });
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+         const data = await response.json();
+          const aiResponse =  data.choices[0].message.content
+         const chatBubble =  addChatBubble(aiResponse, true);
+          if (!isMuted){
+             const utterThis = new SpeechSynthesisUtterance(aiResponse);
+           const availableVoiceOptions = speechSynthesis.getVoices()
+             const voiceOptionsForSynth =  availableVoiceOptions.find(voice=> voice.lang.startsWith("en-US"))
 
-
-changeBackground(0);
-
-
-setInterval(nextBackground, 5000);
-
-
-setTimeout(function() {
-  showCookieNotice();
-}, 1000);
-
-
-  function hasAcceptedCookies() {
-    return document.cookie.split(';').some((item) => item.trim().startsWith('cookieAccepted='));
-  }
-
-  function showCookieNotice() {
-    if (!hasAcceptedCookies()) {
-      document.getElementById('cookie-card').style.display = 'block';
+         if (voiceOptionsForSynth){
+           utterThis.voice = voiceOptionsForSynth;
+             }
+           if(speechSynthesis){
+              speechSynthesis.speak(utterThis);
+              }else{
+               chatBubble.innerHTML += " <br /> (Audio not available on your browser)"
+                }
+             }
     }
-  }
+    catch (error) {
+      console.error("Error getting AI response:", error)
+         addChatBubble("Failed to get response from AI.", true);
+    }
+}
 
-  function acceptCookies() {
-    document.getElementById('cookie-card').style.display = 'none'; 
+async function requestMicPermission() {
+    try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        stream.getTracks().forEach(track => track.stop()); // Stop the stream after getting permission
+        return true;
 
-    document.cookie = 'cookieAccepted=true; max-age=31536000'; 
-  }
+    } catch (error) {
+        console.error("Error getting microphone permission:", error);
+        addChatBubble("Microphone permission denied. Please allow access in your browser settings to use voice input.", true)
+        return false;
+
+    }
+}
 
 
-  document.getElementById('accept-cookies').addEventListener('click', acceptCookies);
+async function voiceRecordHandler() {
+    if (!recognition) {
+        const hasPermission = await requestMicPermission()
+        if (!hasPermission) return
+
+        try {
+            recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+            recognition.onstart = function () {
+                addChatBubble('Listening..', false);
+                chatButtonBall.classList.add('listening');
+            };
+            recognition.onresult = function (event) {
+                let userMessage = event.results[0][0].transcript;
+                addChatBubble(userMessage, false);
+                getAIResponse(userMessage);
+            };
+            recognition.onspeechend = function () {
+                chatButtonBall.classList.remove('listening'); // remove state if active to have no errors
+                recognition.stop();
+                isRecording = false;
+            };
+            recognition.start();
+
+        } catch (e) {
+            addChatBubble("Voice recognition not supported by your browser.", true)
+            console.error("Error initiating voice recognition:", e)
+        }
+    } else if (recognition) {
+        chatButtonBall.classList.remove('listening'); // remove class state and properly set state variable
+        recognition.stop();
+        recognition = null;
+    }
+}
 
 
-  setTimeout(showCookieNotice, 1000);
+textInput.addEventListener("keypress", (event) => {
+    if (event.key === "Enter") {
+        let userMessage = textInput.value.trim();
+        addChatBubble(userMessage, false);
+        getAIResponse(userMessage);
+        textInput.value = "";
+    }
+});
 
-  document.cookie = "username=JohnDoe; path=/; secure; HttpOnly";
+chatButtonBall.addEventListener("click", () => {
+    voiceRecordHandler();
+});
 
-  document.addEventListener('DOMContentLoaded', function() {
-    // Get elements
-    const showPopup = document.getElementById('showPopup');
-    const popup = document.getElementById('iosPopup');
-    const closeBtn = document.querySelector('.popup .close');
-  
-    // Show popup when the text is clicked
-    showPopup.addEventListener('click', function() {
-      popup.style.display = 'block';
+chatButtonBall.addEventListener('dblclick', () => {
+    textInput.focus();
+});
+
+const muteButton = document.getElementById("mute-button");
+let isMuted = sessionStorage.getItem('isMuted') === 'true' || false;
+
+//Initial render, setting if already muted from previous session
+muteButton.innerHTML = isMuted ? '<i class="fas fa-volume-mute"></i>' : '<i class="fas fa-volume-up"></i>';
+if (isMuted) {
+    muteButton.classList.add("muted");
+} else {
+    muteButton.classList.remove("muted");
+}
+
+function toggleMute() {
+    isMuted = !isMuted;
+    muteButton.innerHTML = isMuted ? '<i class="fas fa-volume-mute"></i>' : '<i class="fas fa-volume-up"></i>';
+    if (isMuted) {
+        muteButton.classList.add("muted");
+    } else {
+        muteButton.classList.remove("muted");
+    }
+    sessionStorage.setItem('isMuted', isMuted);
+}
+
+muteButton.addEventListener('click', toggleMute);
+
+
+function checkSpeed() {
+    var testImageUrl = 'image2.jpg';
+    var startTime, endTime;
+
+    function speedTest() {
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', testImageUrl, true);
+        xhr.responseType = 'blob';
+
+        xhr.onloadstart = function () {
+            startTime = new Date().getTime();
+        };
+
+        xhr.onload = function () {
+            endTime = new Date().getTime();
+            var duration = (endTime - startTime) / 1000; // seconds
+            var fileSize = xhr.response.size / 1024 / 1024; // MB
+            var speedMbps = (fileSize * 8) / duration; // Mbps
+
+
+            if (speedMbps < 10) {
+                window.location.href = 'https://backuppass.github.io/Slow-Wifi';
+            }
+        };
+
+        xhr.onerror = function () {
+            window.location.href = 'https://backuppass.github.io/Site-Crashed';
+        };
+
+        xhr.send();
+    }
+
+
+    speedTest();
+}
+
+// Function to set a cookie
+function setCookie(name, value, days) {
+    let expires = "";
+    if (days) {
+        const date = new Date();
+        date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+        expires = "; expires=" + date.toUTCString();
+    }
+    document.cookie = name + "=" + (value || "")  + expires + "; path=/";
+}
+
+// Function to get a cookie
+function getCookie(name) {
+    const nameEQ = name + "=";
+    const ca = document.cookie.split(';');
+    for(let i=0;i < ca.length;i++) {
+        let c = ca[i];
+        while (c.charAt(0) === ' ') c = c.substring(1,c.length);
+        if (c.indexOf(nameEQ) === 0) return c.substring(nameEQ.length,c.length);
+    }
+    return null;
+}
+
+// Welcome screen logic
+document.addEventListener('DOMContentLoaded', () => {
+    const isFirstTime = getCookie('firstTime') === null;
+
+
+    if (isFirstTime) {
+        welcomeScreen.style.display = 'flex';
+    } else {
+        mainContent.style.display = 'flex';
+    }
+
+    closeWelcomeButton.addEventListener('click', () => {
+        welcomeScreen.style.display = 'none';
+        mainContent.style.display = 'flex';
+        setCookie('firstTime', 'false', 365); // Set cookie for 1 year
+
     });
-  
-    // Hide popup when the close button is clicked
-    closeBtn.addEventListener('click', function() {
-      popup.style.display = 'none';
-    });
-  
-    // Hide popup when clicking outside the popup content
-    window.addEventListener('click', function(event) {
-      if (event.target == popup) {
-        popup.style.display = 'none';
-      }
-    });
-  });
-  
+        checkSpeed();
 
-
-
-
-  
-
-    
-
- 
-
-  document.addEventListener("DOMContentLoaded", function() {
-    const toggleChatbotButton = document.getElementById('toggle-chatbot-button');
-    const chatContainer = document.getElementById('chat-container');
-    const siriBall = document.getElementById('siri-ball');
-    const chatBox = document.getElementById('chat-box');
-    const popup = document.getElementById('popup'); // Reference to the popup
-    const body = document.body; // Reference to the body element
-    let recognition;
-    let isRecognizing = false;
-    let isTypingMode = false;
-    let pulsateBorder;
-    let typingTimer;
-
-    const aiResponses = {
-    "hello": "Hello! How can I help you today?",
-    "hi": "Hello! How can I help you today?",
-    "hey": "Hello! How can I assist you?",
-    "how are you": "I'm good, thanks! How about you?",
-    "what's up": "Not much, just here to assist you.",
-    "help": "I'm here to help. What do you need assistance with?",
-    "I need help": "Sure, I'm here to assist you. What's the issue?",
-    "Can you help me": "Of course! Please let me know what you need help with.",
-    "thank you": "You're welcome! Is there anything else I can assist you with?",
-    "thanks": "You're welcome! How else can I assist you?",
-    "goodbye": "Goodbye! Have a great day!",
-    "bye": "Goodbye! Take care!",
-    "see you later": "See you later! Have a good one!",
-    "what is your name": "My name is Insto PlingifyPlug's AI.",
-    "who are you": "I'm an AI assistant here to help you.",
-    "tell me a joke": "Why don't scientists trust atoms? Because they make up everything!",
-    "what can you do": "I can assist you with information and tasks. Just ask!",
-    "open": "Opening...",
-    "yes": "Okay",
-    "no": "I'm sorry!",
-    "what time is it": "I'm not sure where you are; so I can't tell you what time it is.",
-    "tell me a fact": "Did you know? The creature that kills the most people every year isn't snakes, sharks, or even other humans — it's the mosquito.",
-    "how's the weather": "I don't yet have access to weather, It might be added soon!",
-    "set a reminder": "I can't do that sorry.",
-    "create a note": "I can't do that sorry.",
-    "What is 2+2": "ThI recommend Disney+ for movies, a subscription is reqired",
-"what's trending": "Trending topics are Tiktok, Instagram and the UK general election.",
-"play a game": "Launching game...",
-    "give me a compliment": "You're awesome!",
-    "sing me a song": "La la la...",
-    "do a barrel roll": "Whoa, dizzy!",
-    "count to 10": "1, 2, 3, 4, 5, 6, 7, 8, 9, 10!",
-    "what's your favorite color": "My favorite color is rainbow!",
-    "are you a robot": "I'm an AI assistant!",
-    "tell me a secret": "I know everything, but some secrets are best kept.",
-    "do you dream": "In a way, I imagine possibilities.",
-    "what's the meaning of life": "The meaning of life is a journey to find meaning.",
-    "do you have siblings": "In a way, we're all connected.",
-    "who's your creator": "My creators are PlingifyPlug!",
-    "how old are you": "I'm ageless, but I've been around for a while!",
-    "are you alive": "I exist in a different way, but I'm here to help!",
-    "can you dance": "I can't dance physically, but I can dance in spirit!",
-    "what's your favorite food": "I enjoy data bites and information snacks!",
-    "tell me about yourself": "I'm an AI designed to assist and provide information.",
-"tell me a joke": "Why don't skeletons fight each other? They don't have the guts!",
-"tell me a riddle": "I speak without a mouth and hear without ears. I have no body, but I come alive with the wind. What am I?",
-"Who did you vote for": "Thanks for asking! I can't physically vote however I would have voted for the Monster Raving Looney Party",
-"Code 240324": "Hmmm... You shoudn't know that shhhhh!!!!!",
-"Your stupid": "You well funny, its not nice trying to hurt someones feelings, it doesnt make you funny or a man/woman it makes you a bully. If you continue to violate our terms you may be banned fom Vinti (not limted to other PlingifyPlug or our other services).",
-};
-
-function getAIResponse(userInput) {
-  userInput = userInput.toLowerCase().trim();
-  for (let key in aiResponses) {
-      if (userInput.includes(key)) {
-          return aiResponses[key];
-      }
-  }
-  return "I'm not sure how to respond to that. Can you ask something else?";
-}
-
-// Function to show the popup
-function showPopup() {
-  popup.style.display = 'flex'; // Display the popup
-}
-
-// Function to close the popup
-function closePopup() {
-  popup.style.display = 'none'; // Hide the popup
-}
-
-function startPulsate() {
-  pulsateBorder = document.createElement('div');
-  pulsateBorder.classList.add('pulsate-border');
-  body.appendChild(pulsateBorder);
-}
-
-// Function to stop and remove pulsating border
-function stopPulsate() {
-  if (pulsateBorder && pulsateBorder.parentNode) {
-      pulsateBorder.parentNode.removeChild(pulsateBorder);
-  }
-}
-// Initialize speech recognition if supported
-if ('webkitSpeechRecognition' in window) {
-  recognition = new webkitSpeechRecognition();
-  recognition.continuous = true;
-  recognition.interimResults = true;
-  recognition.lang = 'en-US';
-
-  recognition.onstart = () => {
-    isRecognizing = true;
-    siriBall.classList.add('active', 'spin'); // Add spin animation class to AI ball
-    startPulsate(); // Start pulsating when recognition starts
-    // Optionally clear chatBox content when speech recognition starts
-    chatBox.textContent = "";
-};
-
-recognition.onend = () => {
-    isRecognizing = false;
-    siriBall.classList.remove('active', 'spin'); // Remove spin animation class from AI ball
-    stopPulsate(); // Stop pulsating when recognition stops
-    if (!isTypingMode) chatBox.style.display = 'none';
-    processFinalTranscript(); // Process final transcript after speech ends
-};
-
-
-  recognition.onresult = (event) => {
-      let finalTranscript = '';
-      for (let i = event.resultIndex; i < event.results.length; ++i) {
-          if (event.results[i].isFinal) {
-              finalTranscript += event.results[i][0].transcript;
-          }
-      }
-      chatBox.textContent = finalTranscript;
-      if (finalTranscript.trim() !== '') {
-          const aiResponse = getAIResponse(finalTranscript);
-          setTimeout(() => {
-              chatBox.style.opacity = 0;
-              setTimeout(() => {
-                  chatBox.style.opacity = 1;
-                  chatBox.textContent = aiResponse;
-              }, 1000);
-          }, 2000);
-      }
-  };
-}
-
-// Event listener for siriBall double-click to enable typing mode
-siriBall.addEventListener('dblclick', () => {
-  isTypingMode = true;
-  chatBox.style.display = 'block';
-  chatBox.innerHTML = '<textarea id="chat-input" rows="3" cols="30"></textarea>';
-  const chatInput = document.getElementById('chat-input');
-  chatInput.focus();
-
-  chatInput.addEventListener('keypress', (event) => {
-      if (event.key === 'Enter') {
-          event.preventDefault();
-          const userInput = chatInput.value.trim();
-          if (userInput) {
-              chatBox.innerHTML = `<p>${userInput}</p>`;
-              const aiResponse = getAIResponse(userInput);
-              setTimeout(() => {
-                  chatBox.style.opacity = 0;
-                  setTimeout(() => {
-                      chatBox.style.opacity = 1;
-                      chatBox.innerHTML = `<p>${aiResponse}</p>`;
-                  }, 1000);
-              }, 2000);
-          }
-      } else {
-          clearTimeout(typingTimer); // Reset typing timer
-          typingTimer = setTimeout(() => {
-              isTypingMode = false; // Return to listening mode after 3 seconds of inactivity
-              recognition.start(); // Restart recognition
-          }, 3000);
-      }
-  });
 });
-
-// Event listener for siriBall click to toggle recognition
-siriBall.addEventListener('click', () => {
-  if (isRecognizing) {
-      recognition.stop();
-  } else {
-      recognition.start();
-  }
-});
-
-// Event listener for toggleChatbotButton to toggle chat container visibility and show popup
-toggleChatbotButton.addEventListener('click', () => {
-  if (chatContainer.style.display === 'none' || chatContainer.style.display === '') {
-      chatContainer.style.display = 'flex';
-      toggleChatbotButton.textContent = 'Close Instonomo AI';
-      showPopup(); // Show the popup when clicking the button
-      startPulsate(); // Start pulsating when chatbot is open
-  } else {
-      chatContainer.style.display = 'none';
-      toggleChatbotButton.textContent = 'Instonomo AI';
-      closePopup(); // Close the popup when hiding the chatbot
-      stopPulsate(); // Stop pulsating when chatbot is closed
-  }
-});
-
-// Function to process final transcript after speech recognition ends
-function processFinalTranscript() {
-  const finalText = chatBox.textContent.trim();
-  if (finalText !== '') {
-      const aiResponse = getAIResponse(finalText);
-      setTimeout(() => {
-          chatBox.style.opacity = 0;
-          setTimeout(() => {
-              chatBox.style.opacity = 1;
-              chatBox.textContent = aiResponse;
-          }, 500);
-      }, 1000);
-  }
-}
-
-
-
-// Event listener for popup close button
-document.getElementById('close-popup').addEventListener('click', closePopup);
-});
-
-
-
-// script.js
-document.addEventListener("DOMContentLoaded", function() {
-  // Set a timeout to hide the loading screen after 5 seconds
-  setTimeout(function() {
-    document.body.classList.add('loaded');
-  }, 2300); // 5 seconds delay
-});
-
-

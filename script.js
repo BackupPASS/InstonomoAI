@@ -57,7 +57,7 @@ async function getAIResponse(input) {
         if (!isMuted) {
             const utterThis = new SpeechSynthesisUtterance(aiResponse);
             const availableVoiceOptions = speechSynthesis.getVoices()
-            const voiceOptionsForSynth = availableVoiceOptions.find(voice => voice.lang.startsWith("en-US"))
+            const voiceOptionsForSynth = availableVoiceOptions.find(voice => voice.lang.startsWith("en-UK"))
 
             if (voiceOptionsForSynth) {
                 utterThis.voice = voiceOptionsForSynth;
@@ -255,7 +255,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (banExpiry && new Date().getTime() < parseInt(banExpiry)) {
         // User is banned
-        window.location.href = 'https://backuppass.github.io/https://backuppass.github.io/Pass-Banning-System-Token.InstonomoAI.2025//'; // Redirect to banned page
+        window.location.href = 'https://backuppass.github.io/Pass-Banning-System-Token.InstonomoAI.2025//'; // Redirect to banned page
         return;
     } else if (banExpiry) {
         setCookie('banExpiry', "", -1) // removes cookie if ban time has ended
@@ -280,3 +280,4 @@ document.addEventListener('DOMContentLoaded', () => {
    console.log("Access recorded at:", currentTime, "Current Access Times:", accessTimes); //Added for debugging
 
 });
+

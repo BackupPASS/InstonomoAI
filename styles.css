@@ -30,17 +30,9 @@ header {
   margin-top: 30px;
 }
 
-.container-fluid {
-  width: 100vw;
-  height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
 #app-container {
-  padding: 20px;
-  border-radius: 20px;
+  padding: 10px;
+  border-radius: 15px;
   position: relative;
   overflow: hidden;
   display: flex;
@@ -51,9 +43,18 @@ header {
   width: 450px;
   max-width: 90%;
   z-index: 1;
-  max-height: 350px;
+  max-height: 300px;
   margin-bottom: 100px;
 }
+
+.container-fluid {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 
 #chat-output {
   padding: 15px;
@@ -285,3 +286,30 @@ max-width: 80%;
   transform: scale(1.1);
 }
 
+@media (max-width: 1008px) {
+  #app-container {
+    padding: 10px;
+    border-radius: 15px;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    box-shadow: 0 15px 20px rgba(0, 0, 0, 0.8);
+    background: rgba(36, 36, 36, 0.9);
+    width: 450px;
+    max-width: 75%;
+    z-index: 1;
+    max-height: 200px;
+    margin-bottom: 100px;
+  }
+
+  header {
+    color: white;
+    text-align: center;
+    padding: 10px 0;
+    font-family: Alba;
+    width: 100%;
+    margin-top: 30px;
+  }
+}

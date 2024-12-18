@@ -4,11 +4,13 @@ const micButton = document.getElementById('mic-button');
 const muteButton = document.getElementById('mute-button');
 const enterButton = document.getElementById('enter-button');
 const welcomeScreen = document.getElementById('welcome-screen');
-const mainContent = document.getElementById('main-content');
 const closeWelcomeButton = document.getElementById('close-welcome');
+const themeButton = document.getElementById('theme-button'); // Add the theme button element
 
 let isRecording = false;
 let recognition;
+let isMuted = sessionStorage.getItem('isMuted') === 'true' || false;
+let isDarkMode = localStorage.getItem('isDarkMode') === 'true' || false;  // Track dark mode state
 const preDefinedResponses = {
     "yo": "Hello there!",
     "hey": "Hello there!",
@@ -22,6 +24,31 @@ const preDefinedResponses = {
     "default": "I'm sorry but I'm not sure how to respond to that."
 };
 
+
+// Function to apply dark mode styles
+function applyDarkMode() {
+    document.body.classList.add('dark-mode');
+    themeButton.innerHTML = '<i class="fas fa-moon"></i>';
+    localStorage.setItem('isDarkMode', 'true'); // Save dark mode state
+}
+
+// Function to apply light mode styles
+function applyLightMode() {
+    document.body.classList.remove('dark-mode');
+    themeButton.innerHTML = '<i class="fas fa-sun"></i>';
+    localStorage.setItem('isDarkMode', 'false');  // Save light mode state
+}
+
+// Function to toggle dark mode
+function toggleTheme() {
+    isDarkMode = !isDarkMode;
+    if (isDarkMode) {
+        applyDarkMode()
+    } else {
+        applyLightMode()
+    }
+}
+
 function addChatBubble(message, isAi = true) {
     const chatBubble = document.createElement("div");
     chatBubble.classList.add("chat-bubble");
@@ -31,6 +58,7 @@ function addChatBubble(message, isAi = true) {
     chatOutput.scrollTop = chatOutput.scrollHeight;
     return chatBubble;
 }
+
 
 function addThinkingBubble(){
    const chatBubble = document.createElement("div");
@@ -50,7 +78,6 @@ function addThinkingBubble(){
 
      return chatBubble
 }
-
 
 function getClosestResponse(input) {
     const inputLower = input.toLowerCase().trim();
@@ -75,6 +102,7 @@ function getClosestResponse(input) {
     }
 
 }
+
 function stringSimilarity(str1, str2) {
     const longer = str1.length > str2.length ? str1 : str2;
     const shorter = str1.length > str2.length ? str2 : str1;
@@ -92,6 +120,7 @@ function stringSimilarity(str1, str2) {
 
     return matches / longer.length
 }
+
 
 function getKeywordResponse(input) {
     const inputLower = input.toLowerCase().trim();
@@ -122,6 +151,7 @@ function getKeywordResponse(input) {
 
     return null;
 }
+
 function handleResponse(input) {
     const inputLower = input.toLowerCase().trim();
     const keywordResponse = getKeywordResponse(input);
@@ -150,7 +180,7 @@ function getAIResponse(input) {
           if (!isMuted) {
             const utterThis = new SpeechSynthesisUtterance(aiResponse);
             const availableVoiceOptions = speechSynthesis.getVoices()
-            const voiceOptionsForSynth = availableVoiceOptions.find(voice => voice.lang.startsWith("en-UK"))
+            const voiceOptionsForSynth = availableVoiceOptions.find(voice => voice.lang.startsWith("en-US"))
                 if (voiceOptionsForSynth) {
                 utterThis.voice = voiceOptionsForSynth;
             }
@@ -216,6 +246,7 @@ async function voiceRecordHandler() {
     }
 }
 
+
 textInput.addEventListener("keypress", (event) => {
     if (event.key === "Enter") {
         let userMessage = textInput.value.trim();
@@ -232,12 +263,9 @@ enterButton.addEventListener('click', () => {
     textInput.value = "";
 })
 
-
 micButton.addEventListener("click", () => {
     voiceRecordHandler();
 });
-
-let isMuted = sessionStorage.getItem('isMuted') === 'true' || false;
 
 muteButton.innerHTML = isMuted ? '<i class="fas fa-volume-mute"></i>' : '<i class="fas fa-volume-up"></i>';
 if (isMuted) {
@@ -279,7 +307,6 @@ function checkSpeed() {
             var fileSize = xhr.response.size / 1024 / 1024; // MB
             var speedMbps = (fileSize * 8) / duration; // Mbps
 
-
             if (speedMbps < 10) {
                 window.location.href = 'https://backuppass.github.io/Slow-Wifi';
             }
@@ -291,8 +318,6 @@ function checkSpeed() {
 
         xhr.send();
     }
-
-
     speedTest();
 }
 
@@ -307,7 +332,6 @@ function setCookie(name, value, days) {
     document.cookie = name + "=" + (value || "") + expires + "; path=/";
 }
 
-
 function getCookie(name) {
     const nameEQ = name + "=";
     const ca = document.cookie.split(';');
@@ -321,18 +345,21 @@ function getCookie(name) {
 
 
 document.addEventListener('DOMContentLoaded', () => {
-    const isFirstTime = getCookie('firstTime') === null;
+        // Set initial theme based on localStorage, or light mode if no local storage is set
+    if (isDarkMode) {
+        applyDarkMode();
+    } else {
+        applyLightMode();
+    }
 
+    const isFirstTime = getCookie('firstTime') === null;
 
     if (isFirstTime) {
         welcomeScreen.style.display = 'flex';
-    } else {
-        mainContent.style.display = 'flex';
     }
 
     closeWelcomeButton.addEventListener('click', () => {
         welcomeScreen.style.display = 'none';
-        mainContent.style.display = 'flex';
         setCookie('firstTime', 'false', 365); // Set cookie for 1 year
 
     });
@@ -349,7 +376,6 @@ document.addEventListener('DOMContentLoaded', () => {
         setCookie('banExpiry', "", -1)
     }
 
-
     let accessTimes = JSON.parse(localStorage.getItem('accessTimes') || '[]');
     const currentTime = new Date().getTime();
 
@@ -365,5 +391,5 @@ document.addEventListener('DOMContentLoaded', () => {
     accessTimes.push(currentTime);
     localStorage.setItem('accessTimes', JSON.stringify(accessTimes));
     console.log("Access recorded at:", currentTime, "Current Access Times:", accessTimes);
-
 });
+themeButton.addEventListener('click', toggleTheme);

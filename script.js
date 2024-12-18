@@ -6,6 +6,7 @@ const enterButton = document.getElementById('enter-button');
 const welcomeScreen = document.getElementById('welcome-screen');
 const closeWelcomeButton = document.getElementById('close-welcome');
 const themeButton = document.getElementById('theme-button'); // Add the theme button element
+const loadingScreen = document.getElementById('loading-screen'); // loading screen
 
 let isRecording = false;
 let recognition;
@@ -391,5 +392,12 @@ document.addEventListener('DOMContentLoaded', () => {
     accessTimes.push(currentTime);
     localStorage.setItem('accessTimes', JSON.stringify(accessTimes));
     console.log("Access recorded at:", currentTime, "Current Access Times:", accessTimes);
+    // Loading animation fade-out
+    setTimeout(() => {
+        loadingScreen.classList.add('fade-out');
+        setTimeout(() => {
+            loadingScreen.style.display = 'none';
+        }, 500); // Wait for the fade-out transition to complete
+    }, 2000); // Display for 2 seconds
 });
 themeButton.addEventListener('click', toggleTheme);

@@ -6,9 +6,16 @@ body {
   height: 100vh;
   align-items: center;
   justify-content: flex-start;
-  background: #111;
+  background: #dddddd; /* Default light background */
   position: relative;
   font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  transition: background 0.3s, color 0.3s; /* Added transition for smooth mode changes */
+  color: #333; /* Default light text color */
+}
+
+body.dark-mode {
+  background: #111; /* Dark mode background */
+  color: #eee; /* Dark mode text color */
 }
 
 @font-face {
@@ -22,12 +29,16 @@ body {
 }
 
 header {
-  color: white;
+  color: #333;
   text-align: center;
   padding: 10px 0;
   font-family: Alba;
   width: 100%;
   margin-top: 30px;
+   transition: color 0.3s;
+}
+body.dark-mode header {
+  color: #eee;
 }
 
 #app-container {
@@ -38,13 +49,18 @@ header {
   display: flex;
   align-items: center;
   flex-direction: column;
-  box-shadow: 0 15px 20px rgba(0, 0, 0, 0.8);
-  background: rgba(36, 36, 36, 0.9);
+  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2); /* Adjusted light mode shadow */
+  background: rgba(240, 240, 240, 0.8); /* Adjusted light mode background */
   width: 450px;
   max-width: 90%;
   z-index: 1;
   max-height: 60%;
   margin-bottom: 200px;
+  transition: background 0.3s, box-shadow 0.3s;
+}
+body.dark-mode #app-container {
+    box-shadow: 0 15px 20px rgba(0, 0, 0, 0.8);
+    background: rgba(36, 36, 36, 0.9);
 }
 
 .container-fluid {
@@ -62,23 +78,34 @@ header {
   border-radius: 10px;
   width: 90%;
   max-height: 600px;
-  background: rgba(40, 40, 40, 0.6);
-  overflow-y: auto;
-  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.3);
+    background: rgba(220, 220, 220, 0.6); /* Adjusted light mode background */
+    overflow-y: auto;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Adjusted light mode shadow */
   display: flex;
   flex-direction: column;
+    transition: background 0.3s, box-shadow 0.3s;
+
+}
+body.dark-mode #chat-output {
+    background: rgba(40, 40, 40, 0.6);
+        box-shadow: 0 8px 15px rgba(0, 0, 0, 0.3);
+
 }
 
 
 #chat-output::-webkit-scrollbar {
   width: 7px;
-  background: transparent;
+    background: transparent;
 }
 
 #chat-output::-webkit-scrollbar-thumb {
-  background: rgba(66, 66, 66, 0.8);
+    background: rgba(180, 180, 180, 0.8);
   border-radius: 5px;
 }
+body.dark-mode #chat-output::-webkit-scrollbar-thumb {
+    background: rgba(66, 66, 66, 0.8);
+}
+
 
 #chat-output::-webkit-scrollbar-track {
   background: transparent;
@@ -91,29 +118,47 @@ header {
 }
 
 #text-input {
-  padding: 10px;
-  border: 0;
+    padding: 10px;
+    border: 0;
+    background: rgba(230, 230, 230, 0.6); /* Adjusted light mode input background */
+    color: #333;  /* Adjusted light mode input text */
+    border-radius: 5px 0 0 5px;
+    outline: none;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Adjusted light mode shadow */
+  flex: 1;
+  transition: background 0.3s, color 0.3s;
+}
+
+body.dark-mode #text-input{
   background: rgba(55, 55, 55, 0.6);
   color: #eee;
-  border-radius: 5px 0 0 5px;
-  outline: none;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
-  flex: 1;
+
 }
 
 #enter-button {
-  border: none;
-  padding: 10px;
-  border-radius: 0 5px 5px 0;
-  background: rgba(55, 55, 55, 0.6);
-  color: #eee;
-  cursor: pointer;
-  outline: none;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
-  transition: background 0.3s;
+    border: none;
+    padding: 10px;
+    border-radius: 0 5px 5px 0;
+  background: rgba(230, 230, 230, 0.6);
+    color: #333;
+    cursor: pointer;
+    outline: none;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: background 0.3s, color 0.3s;
 }
 
+body.dark-mode #enter-button{
+    background: rgba(55, 55, 55, 0.6);
+    color: #eee;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+}
+
+
 #enter-button:hover {
+ background: rgba(200, 200, 200, 0.8);
+}
+body.dark-mode #enter-button:hover{
  background: rgba(66, 66, 66, 0.8);
 }
 
@@ -126,15 +171,21 @@ header {
 }
 
 .button-bar button {
-  background: rgba(36, 36, 36, 0.9);
+    background: rgba(240, 240, 240, 0.8);
   border: 0;
-  color: #eee;
+    color: #333;
   font-size: 1.3em;
   padding: 10px 20px;
   border-radius: 0; /* Make the buttons corners not round */
   cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease, background 0.3s, color 0.3s;
+}
+body.dark-mode .button-bar button {
+    background: rgba(36, 36, 36, 0.9);
+    color: #eee;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-  transition: transform 0.3s ease, background 0.3s;
+
 }
 
 .button-bar button:first-child {
@@ -161,33 +212,50 @@ display: block;
 margin: 10px 0;
 padding: 10px;
 width: fit-content;
-background: rgba(48, 48, 48, 0.6);
+    background: rgba(220, 220, 220, 0.6);
 border-radius: 5px;
 text-align: left;
-color: #eee;
+    color: #333;
 transition: all 0.3s;
 max-width: 80%;
-box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   white-space: pre-line;
+}
 
+body.dark-mode .chat-bubble {
+    background: rgba(48, 48, 48, 0.6);
+    color: #eee;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
 }
 
 .ai-bubble {
   align-self: flex-start;
-  background-color: rgba(55, 55, 55, 0.6);
+  background-color: rgba(210, 210, 210, 0.6);
 }
+body.dark-mode .ai-bubble {
+    background-color: rgba(55, 55, 55, 0.6);
+
+}
+
 
 .user-bubble {
   align-self: flex-end;
+  background-color: rgba(180, 180, 180, 0.6);
+}
+body.dark-mode .user-bubble{
   background-color: rgba(20, 20, 20, 0.6);
 }
+
 footer {
-  color: white;
+    color: #353535; /* Adjusted light mode color */
   text-align: center;
   padding: 20px 0;
   width: 100%;
+    transition: color 0.3s;
 }
-
+body.dark-mode footer {
+    color: #fff;
+}
 footer ul {
   padding: 0;
   list-style: none;
@@ -199,22 +267,26 @@ footer li {
 }
 
 footer a {
-  color: #999;
+  color: #424242; /* Adjusted light mode color */
   text-decoration: none;
+    transition: color 0.3s;
+}
+body.dark-mode footer a{
+  color: #fff;
 }
 
 footer a:hover {
   text-decoration: underline;
 }
 .footer {
-color: #fff;
+color: #333;
 text-align: center;
 padding: 2px 0;
 position: fixed;
 bottom: 0;
 left: 0;
 width: 100%;
-transition: height 0.3s ease-in-out;
+transition: height 0.3s ease-in-out, color 0.3s;
 border-radius: 25px 25px 0 0;
 overflow: hidden;
 backdrop-filter: blur(2px) saturate(200%);
@@ -222,11 +294,16 @@ backdrop-filter: blur(2px) saturate(200%);
 background-color: rgba(255, 255, 255, 0.23);
 }
 
+body.dark-mode .footer {
+    color: #fff;
+}
 .footer a {
-  color: #fff;
+  color: #333;
   text-decoration: none;
 }
-
+body.dark-mode .footer a {
+    color: #fff;
+}
 
 #welcome-screen {
   margin: 0;
@@ -235,21 +312,33 @@ top: 0;
 left: 0;
 width: 100%;
 height: 100%;
-background-color: #111;
+    background-color: #f0f0f0; /* Adjusted light mode background */
 display: flex;
 justify-content: center;
 align-items: center;
 z-index: 999;
+    transition: background 0.3s;
+}
+body.dark-mode #welcome-screen {
+    background-color: #111;
 }
 
+
 .welcome-content {
-background: rgba(36, 36, 36, 0.9);
-padding: 20px;
+  background: rgba(168, 168, 168, 0.8); /* Adjusted light mode background */
+  padding: 20px;
 border-radius: 10px;
 text-align: center;
-color: white;
+    color: #333; /* Adjusted light mode text */
 max-width: 80%;
+transition: background 0.3s, color 0.3s;
+
 }
+body.dark-mode .welcome-content {
+  background: rgba(36, 36, 36, 0.9);
+      color: #eee;
+}
+
 
 .welcome-content ul {
   list-style-type: none;
@@ -265,22 +354,32 @@ max-width: 80%;
 
 .welcome-content ul li::before {
   content: '\2022';
-  color: #eee;
+    color: #333; /* Adjusted light mode bullet color */
   font-size: 1.5em;
   position: absolute;
   left: -10px;
   top: 0px;
+  transition: color 0.3s;
 }
-
+body.dark-mode .welcome-content ul li::before {
+    color: #eee;
+}
 #close-welcome {
-  background: rgba(55, 55, 55, 0.6);
-  color: #eee;
+    background: rgba(230, 230, 230, 0.6);
+    color: #333;
   border: 0;
   border-radius: 5px;
   padding: 10px 20px;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.3s ease, background 0.3s, color 0.3s;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+body.dark-mode #close-welcome{
+  background: rgba(55, 55, 55, 0.6);
+  color: #eee;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+
 }
 
 #close-welcome:hover {
@@ -306,7 +405,7 @@ max-width: 80%;
   }
 
   header {
-    color: white;
+    color: rgb(0, 0, 0);
     text-align: center;
     padding: 10px 0;
     font-family: Alba;

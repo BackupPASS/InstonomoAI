@@ -1,47 +1,70 @@
-
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>InstonomoAI</title>
     <link rel="stylesheet" href="styles.css">
-    <link rel="icon" href="VintiLogo.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+        integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <title>InstonomoAi</title>
 </head>
+
 <body>
-
-
-<div class="headertxt">
-  <center><h1 style="font-family: Albas;">InstonomoAI</h1></center>  
-</div>
-
-<div class="container">
-    <div class="content">
-<p><b>This site is currently unavailable,</b> to see if this site is working correctly <a style="color: #000;" href="https://plingifyplug.com/status">Click here.</a></p>
-</div>
-</div>
-
-
-
-<div class="footer">
-    <p>&copy; 2024 InstonomoAI. All rights reserved. | <a href="https://plingifyplug.com/">PlingifyPlug</a> | <a href="https://plingifyplug.com/contact-us">Support</a> | <a href="https://plingifyplug.com/privacy">Privacy Policy</a></p>
-</div>
-
-
-<div id="background-slideshow"></div>
-
-
-
-<div class="cookie-card" id="cookie-card">
-    <span class="title">🍪 Cookie Notice</span>
-    <p class="description">We use cookies to ensure that we give you the best experience on our website. <a href="https://www.plingifyplug.com/privacy">Read cookies policies</a>. </p>
-    <div class="actions">
-      <button class="accept" id="accept-cookies">
-        Accept
-      </button>
+    <div id="loading-screen">
+        <svg class="pl" width="240" height="240" viewBox="0 0 240 240">
+            <circle class="pl__ring pl__ring--a" cx="120" cy="120" r="105" fill="none" stroke="#000" stroke-width="20"
+                stroke-dasharray="0 660" stroke-dashoffset="-330" stroke-linecap="round"></circle>
+            <circle class="pl__ring pl__ring--b" cx="120" cy="120" r="35" fill="none" stroke="#000" stroke-width="20"
+                stroke-dasharray="0 220" stroke-dashoffset="-110" stroke-linecap="round"></circle>
+            <circle class="pl__ring pl__ring--c" cx="85" cy="120" r="70" fill="none" stroke="#000" stroke-width="20"
+                stroke-dasharray="0 440" stroke-linecap="round"></circle>
+            <circle class="pl__ring pl__ring--d" cx="155" cy="120" r="70" fill="none" stroke="#000" stroke-width="20"
+                stroke-dasharray="0 440" stroke-linecap="round"></circle>
+        </svg>
     </div>
-  </div>
+    <div id="welcome-screen" style="display: none;">
+        <div class="welcome-content">
+            <h1 style="font-family: Alba;">Welcome to InstonomoAi</h1>
+            <p>Here's how to get started:</p>
+            <ul>
+                <li>Type your questions in the text box and press enter.</li>
+                <li>Click the mic button to speak your questions.</li>
+                <li>Press the speaker button to mute or unmute audio</li>
 
-<script src="script.js"></script>
+            </ul>
+            <button id="close-welcome">Let's Chat</button>
+        </div>
+    </div>
+
+    <header>
+        <h1>InstonomoAi</h1>
+    </header>
+    <div class="container-fluid">
+        <div id="app-container">
+            <div id="chat-output">
+
+            </div>
+            <div class="input-container">
+                <input type="text" id="text-input" placeholder="Type here to start a chat.">
+                <button id="enter-button"><i class="fas fa-arrow-right"></i></button>
+            </div>
+            <div class="button-bar">
+                <button id="mic-button"><i class="fas fa-microphone"></i></button>
+                <button id="mute-button"><i class="fas fa-volume-up"></i></button>
+                <button id="theme-button"><i class="fas fa-sun"></i></button>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p>© 2024 PlingifyPlug. All rights reserved. | <a href="https://plingifyplug.com/">PlingifyPlug</a> | <a
+                href="https://plingifyplug.com/contact-us">Support</a> | <a
+                href="https://plingifyplug.com/privacy">Privacy Policy</a></p>
+    </div>
+
+    <script src="script.js"></script>
 </body>
+
 </html>

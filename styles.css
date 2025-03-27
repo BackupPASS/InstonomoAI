@@ -1,9 +1,4 @@
 
-.MainBox{
-  text-align: center;
-  margin-top: 300px;
-}
-
 body {
     margin: 0;
     overflow: hidden;
@@ -11,34 +6,148 @@ body {
     flex-direction: column;
     height: 100vh;
     align-items: center;
-    justify-content: flex-start;
+    justify-content: center; 
     position: relative;
     font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
     background: #111;
     color: #eee;
-}
+    padding-left: 20px; 
+    padding-right: 20px; 
+    box-sizing: border-box; 
+  }
+  
 
   @font-face {
     font-family: 'Alba';
     src: url('ALBA____.TTF') format('truetype');
   }
-  
+
   @font-face {
     font-family: 'Albas';
     src: url('ALBAS___.TTF') format('truetype');
   }
+  
 
   a {
     color: white;
-    text-decoration: none; 
-    }
-    
-    
-    a:visited {
+    text-decoration: none;
+  }
+  
+  a:visited {
     color: white;
+  }
+  
+  a:hover {
+    color: #ffffff;
+  }
+  
+
+  .MainBox {
+    display: flex;
+    justify-content: center; 
+    align-items: center; 
+    flex-direction: column; 
+    text-align: center;
+    margin-top: 50px; 
+    max-width: 600px; 
+    z-index: 10; 
+  }
+  
+  
+  .main-container {
+    display: flex;
+    justify-content: center;
+    align-items: center; 
+    flex-direction: row; 
+    gap: 50px; 
+    width: 100%;
+    padding: 20px; 
+  }
+  
+ 
+  .iphone-frame {
+    position: relative;
+    width: 250px; 
+    height: 500px; 
+    background-color: #fff;
+    border-radius: 30px; 
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    overflow: hidden;
+    border: 5px solid #333; 
+  }
+  
+
+  .iphone-screen {
+    width: 100%;
+    height: 100%;
+    background-color: #000;
+    position: relative;
+  }
+  
+  .iphone-screen img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  
+  
+  .iphone-camera {
+    position: absolute;
+    top: 15px;
+    left: 60%;
+    transform: translateX(-50%);
+    width: 10px; /* Smaller camera size */
+    height: 10px; /* Adjusted camera size */
+    background-color: #191919;
+    border-radius: 10px;
+  }
+  
+
+  .dynamic-island {
+    position: absolute;
+    top: 10px; 
+    left: 50%;
+    transform: translateX(-50%);
+    width: 70px;
+    height: 20px;
+    background-color: #000000;
+    border-radius: 15px;
+    box-shadow: 0 1px 5px rgba(0, 0, 0, 0.5);
+  }
+  
+  
+  
+  @media (max-width: 568px) {
+    .main-container {
+      flex-direction: column; 
+      gap: 20px;
     }
-    
-    
-    a:hover {
-    color: #ffffff; 
+  
+ 
+    .iphone-frame {
+      display: none;
     }
+  
+ 
+    .MainBox {
+      margin-top: 20px; 
+      margin-left: 0; 
+      margin-right: 0; 
+      padding-left: 10px; 
+      padding-right: 10px; 
+    }
+  
+    .MainBox h2 {
+      font-size: 24px; 
+    }
+  
+    .MainBox p,
+    .MainBox h3 {
+      font-size: 18px; 
+    }
+  
+    .MainBox a {
+      font-size: 16px; 
+    }
+  }
+  
